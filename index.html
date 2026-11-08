@@ -460,3 +460,32 @@ $('pdfMonth').innerHTML=MONTHS_MS.map((n,i)=>`<option value="${i+1}">${n}</optio
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0&&!window.claude)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 paintIcons();applyTheme();buildNav();render();initSync();
 </script></body></html>
+
+{
+  "name": "MY ROSTER",
+  "short_name": "MY ROSTER",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#101014",
+  "theme_color": "#101014",
+  "lang": "ms",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+const C='myroster-v7';
+const ASSETS=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;
+e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(r=>{if(r&&(r.ok||r.type==='opaque')){const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp))}return r}).catch(()=>caches.match('./index.html'))))});
